@@ -15,8 +15,8 @@ function MainFramework(){
 	}
 	this.createCanvas = function(w,h){
 		if (typeof w == "number" && typeof h == "number")
-				console.log("Creating new canvas of size "+w+" by "+h+".");
-		else {	console.log("Creating new canvas oogalaboogala of size 800 by 600.");		w = 800;h = 600;}
+				console.log("Creating new canvas oogabooga of size "+w+" by "+h+".");
+		else {	console.log("Creating new canvas of size 800 by 600.");		w = 800;h = 600;}
 		this.canvas = document.createElement('canvas');
 		this.canvas.width  = w;	this.canvas.height = h;
 		document.body.appendChild(this.canvas);}
