@@ -26,7 +26,9 @@ function MouseFramework(){
 	mouse.rely = that.rely.bind(that);
 	mouse.reld = that.reld.bind(that);
 	mouse.rela = that.rela.bind(that);
-
+	this.getMouse = function(){
+		return mouse;
+	}
 	this.setcanvas = function(canvas){
 		mouse.canvas = canvas;
 	}
