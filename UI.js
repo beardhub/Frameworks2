@@ -398,7 +398,7 @@ function UIFramework(){
 	this.DBox.prototype.cumZoom = function(){
 		
 		if (typeof this.container !== "undefined")
-			return this.container.cumZoom()*this.camera.getzoom();
+			return this.container.cumzoom()*this.camera.getzoom();
 		else return this.camera.getzoom();
 		//	if (typeof this.container.screenx !== "undefined")
 		//		return this.container.screenx(x);
