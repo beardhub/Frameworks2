@@ -396,7 +396,6 @@ function UIFramework(){
 		var b = this.getbounds();
 		return Math.abs((b.u-b.d)*(b.l-b.r));}
 	this.DBox.prototype.cumZoom = function(){
-		
 		if (typeof this.container !== "undefined")
 			return this.container.cumZoom()*this.camera.getzoom();
 		else return this.camera.getzoom();
@@ -405,7 +404,7 @@ function UIFramework(){
 		//	else return x;
 		//else return x;
 	}
-	this.DBox.prototype.mouseonbox = function(m){return m.relx(this)>0&&m.relx(this)<this.w&&m.rely(this)>0&&m.rely(this)<this.h;}
+	this.DBox.prototype.mouseonbox = function(m){return m.relx(this)>0&&m.relx(this)<this.w*this.container.cumZoom()&&m.rely(this)>0&&m.rely(this)<this.h*this.container.cumZoom();}
 	this.DBox.prototype.screenx = function(xx){
 		var x = (this.x + this.camera.relx(xx));//this.camera.getzoom();
 		if (typeof this.container !== "undefined")
