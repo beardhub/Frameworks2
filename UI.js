@@ -26,8 +26,8 @@ function UIFramework(){
 			ty = this.target.y;
         if ((this.follower.container==-1)||(this.target.container==-1))
             this.container.remove(this);
-		if (typeof tx == "function") tx = tx();
-		if (typeof ty == "function") ty = ty();
+		if (typeof tx == "function") tx = this.target.x();
+		if (typeof ty == "function") ty = this.target.y();
 		this.follower.x = this.scale * (tx + this.x);
 		this.follower.y = this.scale * (ty + this.y);
 	}
@@ -53,9 +53,7 @@ function UIFramework(){
 				this.onclick.call(this);
 			this.down = false;
 		}
-		this.onclick = function(){
-			console.log("click");
-		}
+		this.onclick = function(){}
 		this.inrender = function(g){}
 		this.rbefore = function(g){
 			g.save()
