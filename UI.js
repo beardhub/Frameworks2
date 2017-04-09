@@ -39,19 +39,27 @@ function UIFramework(){
 		this.cropped = this.w>0&&this.h>0;
 		this.color = "grey";
 		this.bcolor = "darkgrey";
+		this.key = "";
 		this.pcolor = "black";
-		this.mousedown = function(m){
-			if (m.relx(this)>0 && m.relx(this)<this.w &&
-				m.rely(this)>0 && m.rely(this)<this.h)
-				this.down = true;
-				
+		this.mousedown = function(e,m){
+			if (e.button != 0)	return;
+			if (this.isOver(m))	{	this.down = true; return true;	}
 		}
-		this.mouseup = function(m){
-			if (m.relx(this)>0 && m.relx(this)<this.w &&
-				m.rely(this)>0 && m.rely(this)<this.h &&
-				this.down)
-				this.onclick.call(this);
+		this.mouseup = function(e,m){
+			if (e.button != 0)	return;
+			if (this.isOver(m) && this.down)	this.onclick.call(this);
 			this.down = false;
+		}
+		this.isOver = function(m){
+			return 	m.relx(this)>0 && m.relx(this)<this.w*this.container.cumZoom() &&
+					m.rely(this)>0 && m.rely(this)<this.h*this.container.cumZoom();
+		}
+		this.mousemove = function(e,m){
+			this.over = this.isOver(m);
+		}
+		this.keydown = function(k){
+			if (k.name == this.key)
+				this.onclick.call(this);
 		}
 		this.onclick = function(){}
 		this.inrender = function(g){}
@@ -72,11 +80,11 @@ function UIFramework(){
 			g.strokeStyle = this.bcolor;
 			g.lineWidth = 4;
 			g.strokeRect(this.x,this.y,this.w,this.h);
-			if (!this.down)
+			if (!(this.down && this.over))
 				return;
 			g.globalAlpha = .5;
 			g.fillStyle = this.pcolor;
-			g.fillRect(this.x-2,this.y-2,this.w+4,this.h+4);
+			g.fillRect(this.x+2,this.y+2,this.w-4,this.h-4);
 		}
 		this.render = function(g){
 			this.rbefore(g);
@@ -89,6 +97,7 @@ function UIFramework(){
 		this.y = y || 0;
 		this.w = w || 0;
 		this.h = h || 0;
+		this.alphamod = 1;
 		//var border = new dynimage(Assets.i("boxborder")),
 		//	corner = new dynimage(Assets.i("boxcorner"));
 		//this.borders = true;
@@ -191,25 +200,26 @@ function UIFramework(){
 				//g.translate((this.x*scale-this.w/2), (this.y*scale-this.h/2));
 			}
 		}
-		this.mouseevent = function(type,m){
+		this.mouseevent = function(type,e,m){
 			//console.log(type);
-			if (this.hidden || this.frozen)	return;
+			if (this.hidden || this.frozen || this.invisible)	return;
 			for (var j = rrng.max; j >= rrng.min; j--)
 				for (var i = q.length-1; i >= 0; i--)
-					if (q[i].rl==j)
-						if (typeof q[i]["mouse"+type] !== "undefined")
-							if (q[i]["mouse"+type](m))
-								return true;
-			return //this.mouseonbox()&&
-			!this.transparent;}
+					if (exists(q[i]))
+						if (q[i].rl==j)
+							if (typeof q[i]["mouse"+type] !== "undefined")
+								if (q[i]["mouse"+type](e,m))
+									return true;
+			return this.mouseonbox(m)&&!this.transparent;}
 		this.keyevent = function(type, c){
 			if (this.hidden || this.frozen)	return;
 			for (var j = rrng.max; j >= rrng.min; j--)
 				for (var i = 0; i < q.length; i++)
-					if (q[i].rl==j)
-						if (typeof q[i]["key"+type] !== "undefined")
-							if (q[i]["key"+type](c))
-								return;}
+					if (exists(q[i]))
+						if (q[i].rl==j)
+							if (typeof q[i]["key"+type] !== "undefined")
+								if (q[i]["key"+type](c))
+									return;}
 		this.add = function(system, name){
 			if (typeof name !== "string"){
 				//console.log("Adding anonymous system: ");
@@ -217,15 +227,17 @@ function UIFramework(){
 				q.push(system);
 				system.container = this;
 				system.pget = this.get;
-				system.systemname = name;
+				//system.systemname = name;
 				if (typeof system.init == "function")	system.init();	return;}var sub = "";
 			if (name.indexOf(".")!==-1){
 				sub = name.substring(name.indexOf("."));
 				name = name.substring(0,name.indexOf("."));
 				if (typeof systems[name] !== "object"){	console.log("Parent system not found: "+name);	return;}}
 			if (sub == ""){
+				if (this.has(name) && q.indexOf(systems[name])!=-1)
+					q.splice(q.indexOf(systems[name]),1,system)
+				else q.push(system);
 				systems[name] = system;
-				q.push(system);
 				system.container = this;
 				system.pget = this.get;
 				system.systemname = name;
@@ -235,17 +247,22 @@ function UIFramework(){
 			switch(typeof sorn){
 				case "undefined":	console.log("Invalid removal.");	return;
 				case "string": //name 
-					sorn = this.get(sorn);	sorn.container = -1;
-					if (typeof sorn.ondelete == "function")		sorn.ondelete();
-					q.splice(q.indexOf(sorn),1);
+					//if (this.has(sorn)){ return;}// return;}
+					
+					sorn = this.get(sorn);//systems[sorn];//this.get(sorn.systemname);//	sorn.container = -1;
+					//if (typeof sorn.ondelete == "function")	//	sorn.ondelete();
+					//console.log(q.splice(q.indexOf(sorn),1));
 					//delete sorn;	
-					return;		default: sorn.container = -1;//system
+					//return;
+					default: sorn.container = -1;//system
+					//console.log(sorn.systemname);
+					//console.log("index"+q.indexOf(sorn)+" sname"+sorn.systemname);
 					if (typeof sorn.ondelete == "function")		sorn.ondelete();
-					q.splice(q.indexOf(sorn),1);	return;}}
+					q.splice(q.indexOf(sorn),1);	delete systems[sorn.systemname];	return;}}
 		this.get = function(name){
-			if (typeof name !== "string"){	console.log("Not a valid name: "+name);	return;}	var sub = "";
+			if (typeof name !== "string"){	console.log("Not a valid name: "+name);	return -1;}	var sub = "";
 			if (name.indexOf(".")!==-1){sub = name.substring(name.indexOf(".")+1);name = name.substring(0,name.indexOf("."));}
-			if (typeof systems[name] !== "object"){	console.log("System not found: "+name);		return;}
+			if (typeof systems[name] !== "object"){	console.log("System not found: "+name);		return -1;}
 			if (sub == "") return systems[name];
 			else return systems[name].get(sub);}
 		this.has = function(name){
@@ -253,41 +270,48 @@ function UIFramework(){
 		this.update = function(delta){
 			if (this.frozen || this.hidden)	return;
 			for (var i = 0; i < q.length; i++){
+				if (!exists(q[i])) continue;
 				q[i].ul = q[i].ul || 0;
 				if (q[i].ul<urng.min)urng.min=q[i].ul;
 				if (q[i].ul>urng.max)urng.max=q[i].ul;}
 			for (var j = urng.min; j <= urng.max; j++)
 				for (var i = 0; i < q.length; i++)
-					if (!q[i].frozen && exists(q[i].update) && q[i].ul==j)
-						q[i].update(delta);}
+					if (exists(q[i]))
+						if (!q[i].frozen && exists(q[i].update) && q[i].ul==j)
+							q[i].update(delta);}
 		this.render = function(g){
 			if (this.invisible || this.hidden)	return;
 			renderBefore.call(this,g);
 			this.camera.step(g);
 			for (var i = 0; i < q.length; i++){
+				if (!exists(q[i])) continue;
 				q[i].rl = q[i].rl || 0;
 				if (q[i].rl<rrng.min)rrng.min=q[i].rl;
 				if (q[i].rl>rrng.max)rrng.max=q[i].rl;}
 			for (var j = rrng.max; j >=rrng.min; j--)
 				for (var i = 0; i < q.length; i++)
-					if (q[i].rl==j && q[i].fullscreen){
-						temprender(g,q[i]);
-						for (var j2 = j; j2 <= rrng.max; j2++)
-							for (var i = 0; i < q.length; i++)
-								if (q[i].rl==j)
-									temprender(g,q[i]);
-						return;}
+					if (exists(q[i]))
+						if (q[i].rl==j && q[i].fullscreen){
+							temprender(g,q[i]);
+							for (var j2 = j; j2 <= rrng.max; j2++)
+								for (var i = 0; i < q.length; i++)
+									if (q[i].rl==j)
+										temprender(g,q[i]);
+							return;}
 			for (var j = rrng.min; j <= rrng.max; j++)
 				for (var i = 0; i < q.length; i++)
-					if (q[i].rl==j)
-						temprender(g,q[i]);
+					if (exists(q[i]))
+						if (q[i].rl==j)
+							temprender(g,q[i]);
 			this.camera.unstep(g);
 			renderAfter.call(this,g);
 		}
 		function renderBefore(g){
 			g.save()
 			g.translate(this.x,this.y);
-			if (!this.transparent&&this.color!=="clear"){
+			if (this.alphamod > 0 && this.alphamod != 1)
+				g.globalAlpha*=this.alphamod;
+			if (!this.transparent&&this.color!=="clear"&&this.alphamod > 0){
 				g.fillStyle = this.color;
 				g.fillRect(0,0,this.w,this.h);}
 			if (!this.cropped) return;
@@ -352,7 +376,6 @@ function UIFramework(){
 	this.DBox.prototype.stretchfit = function(inner){
 		var m1 = inner.h/inner.w,
 			m2 = this.h/this.w;
-		console.log(m1+" "+m2);
 		if (m1 > m2){
 			this.camera.reset();
 			//this.camera.centerZero();
@@ -406,7 +429,7 @@ function UIFramework(){
 	}
 	this.DBox.prototype.mouseonbox = function(m){return m.relx(this)>0&&m.relx(this)<this.w*this.container.cumZoom()&&m.rely(this)>0&&m.rely(this)<this.h*this.container.cumZoom();}
 	this.DBox.prototype.screenx = function(xx){
-		var x = (this.x + this.camera.relx(xx));//this.camera.getzoom();
+		var x = (this.x + this.camera.relx(xx))//*this.camera.getzoom();
 		if (typeof this.container !== "undefined")
 			if (typeof this.container.screenx !== "undefined")
 				return this.container.screenx(x);
@@ -422,11 +445,11 @@ function UIFramework(){
 				return this.container.screeny(y);
 			else return y;
 		else return y;}
-	this.DBox.prototype.mousedown = (function(m){	return this.mouseevent.apply(this,["down",m]);});
-	//this.DBox.prototype.mousedown = (function(m){	return this.mouseevent.apply(this,["down",m]);});
-	this.DBox.prototype.mouseup = function(m){		return this.mouseevent.apply(this,["up",m]);}
-	this.DBox.prototype.mouseclick = function(m){	return this.mouseevent.apply(this,["click",m]);}
-	this.DBox.prototype.mouserclick = function(m){	return this.mouseevent.apply(this,["rclick",m]);}
+	this.DBox.prototype.mousedown = (function(e,m){	return this.mouseevent.apply(this,["down",e,m]);});
+	this.DBox.prototype.mouseup = function(e,m){	return this.mouseevent.apply(this,["up",e,m]);}
+	this.DBox.prototype.mousemove = function(e,m){	return this.mouseevent.apply(this,["move",e,m]);}
+	//this.DBox.prototype.mouseclick = function(m){	return this.mouseevent.apply(this,["click",m]);}
+	//this.DBox.prototype.mouserclick = function(m){	return this.mouseevent.apply(this,["rclick",m]);}
 	this.DBox.prototype.keydown = function(c){		this.keyevent("down",c);}
 	this.DBox.prototype.keyup = function(c){		this.keyevent("up",c);}
 	this.DBox.prototype.keypress = function(c){		this.keyevent("press",c);}

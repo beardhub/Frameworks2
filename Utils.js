@@ -10,6 +10,33 @@ function UtilsFramework(){
 					this.container.remove(this);
 		}
 	}
+	this.KeyListener = function(type, key, oncomp){
+		this.init = function(){
+			if (!(type == "down" || type == "up")){
+				this.container.remove(this);
+				return;
+			}
+			this["key"+type] = function(k){
+				if (k.name == key)
+					if (oncomp())
+						this.container.remove(this);
+			}
+		}
+	}
+	this.MouseListener = function(type, func, oncomp){
+		oncomp = oncomp || function(){};
+		this.init = function(){
+			if (["down","up","move"].indexOf(type)==-1){
+				this.container.remove(this);
+				return;
+			}
+			this["mouse"+type] = function(e,m){
+				if (func(e,m))
+					if (oncomp())
+						this.container.remove(this);
+			}
+		}
+	}
 	this.TimedSequence = function(seq){
 		this.seq = seq;
 		this.timer = new that.Timer(this.seq[0].c).start();
@@ -137,6 +164,8 @@ function UtilsFramework(){
 			return this.count/this.dur;
 		}
 		this.consume = function(){
+			if (this.dur < 0)
+				return false;
 			if (this.count >= this.dur){
 				this.count = 0;
 				if (!this.loop)

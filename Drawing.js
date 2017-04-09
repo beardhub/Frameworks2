@@ -31,7 +31,7 @@ function DrawingFramework(){
 		}
 	}
 	this.drawCText = function(g, txt, x, y){
-		g.fillText(txt,x-g.measureText(txt).width/2,y);
+		g.fillText(txt,x-g.measureText(txt).width/2,y+g.measureText("M").width/2);
 	}
 	this.Img = function(img){
 		this.img = img;

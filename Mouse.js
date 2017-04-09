@@ -17,7 +17,7 @@ function MouseFramework(){
 	this.x = function(){	return mouse.x;	}
 	this.y = function(){	return mouse.y;	}
 	this.isdown = function(){	return mouse.down;	}
-	this.relx = function(t){if (!exists(t.container)) return this.x()-t.x;return this.x() - (t.container.screenx(t.x));}// + t.x)/t.container.camera.getzoom();}
+	this.relx = function(t){if (!exists(t.container)) return this.x()-t.x;return (this.x() - (t.container.screenx(t.x)))}//t.container.cumZoom();}// + t.x)/t.container.camera.getzoom();}
 	this.rely = function(t){if (!exists(t.container)) return this.y()-t.y;return this.y() - (t.container.screeny(t.y));}// + t.y)/t.container.camera.getzoom();}
 	this.reld = function(t){return Math.sqrt(this.relx(t)*this.relx(t)+this.rely(t)*this.rely(t));}
 	this.rela = function(t){return Math.atan2(this.rely(t),this.relx(t))}
@@ -39,7 +39,7 @@ function MouseFramework(){
 			up:function(){},
 			click:function(){},
 			rclick:function(){},
-			//moved:function(){}
+			move:function(){}
 			}
 			
 		for (var p in validfuncs){
@@ -58,7 +58,15 @@ function MouseFramework(){
 			that.down();
 		}
 		down.bind(this,mouse);*/
-		document.body.addEventListener("click",(function(mouse,e){			e.preventDefault();	mouse.upos(e);	that.click(mouse);	}).bind(that,mouse));
+		
+		document.body.addEventListener("mousedown",(function(mouse,e){	e.preventDefault();	mouse.upos(e);	that.down(e,mouse);	}).bind(that,mouse));
+		document.body.addEventListener("mouseup",(function(mouse,e){	e.preventDefault();	mouse.upos(e);	that.up(e,mouse);	}).bind(that,mouse));
+		document.body.addEventListener("mousemove",(function(mouse,e){	e.preventDefault();	mouse.upos(e);	that.move(e,mouse);	}).bind(that,mouse));
+		document.body.addEventListener("contextmenu",function(e){	e.preventDefault()});
+		
+		
+		
+		/*document.body.addEventListener("click",(function(mouse,e){			e.preventDefault();	mouse.upos(e);	that.click(mouse);	}).bind(that,mouse));
 		document.body.addEventListener("contextmenu",(function(mouse,e){	e.preventDefault();	mouse.upos(e);	that.rclick(mouse);	}).bind(that,mouse));
 		document.body.addEventListener("touchstart",function(e){			e.preventDefault(); 
 			mouse.upos(e.touches[0]);
@@ -66,16 +74,16 @@ function MouseFramework(){
 			mouse.down = true;	
 			that.down(mouse);
 			});
-		document.body.addEventListener("mousedown",function(e){			e.preventDefault(); mouse.upos(e);mouse.down = true;	that.down(mouse);});
+		document.body.addEventListener("mousedown",function(e){		console.log(e);	e.preventDefault(); mouse.upos(e);mouse.down = true;	that.down(mouse);});
 		//down);//.bind(this,mouse));//(function(mouse,e){	e.preventDefault();	mouse.upos(e);	that.down();	}).bind(that,mouse));
 		document.body.addEventListener("mouseup",function(e){				e.preventDefault();	mouse.upos(e);mouse.down = false;	that.up(mouse);	});
 		document.body.addEventListener("touchend",function(e){				e.preventDefault();	mouse.upos(e);mouse.down = false;	that.up(mouse);	});
 		//(function(mouse,e){		e.preventDefault();	mouse.upos(e);	that.up();		}).bind(that,mouse));
-		document.body.addEventListener("mousemove",(function(mouse,e){		e.preventDefault();mouse.upos(e);/*	setTimeout(mouse.upos(e),20);	/*that.moved();*/	}).bind(that,mouse));
-		document.body.addEventListener("drag",(function(e){		e.preventDefault();}));//	mouse.upos(e);	/*that.moved();*/	}).bind(that,mouse));
+		//document.body.addEventListener("mousemove",(function(mouse,e){		e.preventDefault();mouse.upos(e);/*	setTimeout(mouse.upos(e),20);	/*that.moved();*	}).bind(that,mouse));
+		document.body.addEventListener("drag",(function(e){		e.preventDefault();}));//	mouse.upos(e);	/*that.moved();*	}).bind(that,mouse));
 		document.body.addEventListener("touchmove",(function(mouse,e){		e.preventDefault();	
-			mouse.upos(e.touches[0]);	/*that.moved();*/	}).bind(that,mouse));
-		
+		mouse.upos(e.touches[0]);	/*that.moved();*	}).bind(that,mouse));
+		*/
 		
 	}
 	

@@ -25,11 +25,29 @@ function KeysFramework(){
 		for (var p in this.Keys)if (this.Keys[p][x.get]==g){if (keyitself)	
 				return this.Keys[p];return this.Keys[p][x.give];}
 		if (keyitself) return this.Keys.nak;return x.fail;}
-	this.dpad = function(wasd,s){wasd=wasd.toUpperCase();this.keys = [];
-		for (var i = 0; i < 4; i++)this.keys.push(Keys[wasd.charAt(i)]);
-		this.s = s || 1;this.dx=this.dy=0;this.update = function(){
-		this.dx=this.dy=0;for (var i = 0; i < 4; i++)if (this.keys[i].down){
-		this.dx+=([0,-1,0,1])[i];this.dy+=([-1,0,1,0])[i];}this.dx*=this.s;this.dy*=this.s;}}
+	/*this.dpad = function(wasd,s){
+		wasd=wasd.toUpperCase();
+		this.keys = [];
+		for (var i = 0; i < 4; i++)
+			this.keys.push(Keys[wasd.charAt(i)]);*/
+	this.dpad = function(keys,s){
+		this.keys = [];
+		for (var i = 0; i < 4; i++)
+			this.keys.push(Keys[keys[i]]);
+		this.s = s || 1;
+		this.dx=this.dy=0;
+		this.update = function(){
+			this.dx=this.dy=0;
+			for (var i = 0; i < 4; i++)
+				if (this.keys[i].down){
+					this.dx+=([0,-1,0,1])[i];
+					this.dy+=([-1,0,1,0])[i];
+				}
+			this.dx*=this.s;
+			this.dy*=this.s;
+		}
+	}
+		
 	this.setupListeners = function(keyhub, div){div.addEventListener("keydown",(function(c){this.get(c.keyCode,true).down=true;}).bind(this));
 	div.addEventListener("keyup",(function(c){this.get(c.keyCode,true).down=false;}).bind(this));
 	for(var i=0;i<3;i++)div.addEventListener("key"+(["down","up","press"])[i],keyhub.dup.bind(keyhub,this,i));}
@@ -46,6 +64,11 @@ function KeysFramework(){
 		//alert (this.get);
 		//window.addEventListener("keypress", keyhub.dup.bind(undefined,this,2));
 	/*
+	
+	
+	
+	
+	
 		
 		
 		function blah(x, c){
