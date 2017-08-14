@@ -1,5 +1,6 @@
 function DrawingFramework(){
 	this.frameworkName = "DrawingFramework";
+	var that = this;
 	this.Sprite = function(img){
 		this.img = img;
 		this.x = 0;
@@ -29,6 +30,24 @@ function DrawingFramework(){
 			g.drawImage(this.img,0,0,this.img.width,this.img.height);
 			g.restore();
 		}
+	}
+	this.drawBoxText = function(g, txt, x, y, w){
+		var words = txt.split(" ");
+		var seg = "";
+		var lines = [];
+		for (var i = 0; i < words.length; i++)
+			if (g.measureText(seg+words[i]).width>w*.9){
+				lines.push(seg);
+				seg = words[i]+" ";
+			} else if (words[i].indexOf("\n")!==-1) {
+				lines.push(seg+words[i]);
+				seg = "";
+			} else {
+				seg+=words[i]+" ";
+			}
+			lines.push(seg);
+		for (var i = 0; i < lines.length; i++)
+			that.drawCText(g,lines[i],x,y+i*g.measureText("M").width);
 	}
 	this.drawCText = function(g, txt, x, y){
 		g.fillText(txt,x-g.measureText(txt).width/2,y+g.measureText("M").width/2);

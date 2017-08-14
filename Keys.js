@@ -52,7 +52,7 @@ function KeysFramework(){
 	div.addEventListener("keyup",(function(c){this.get(c.keyCode,true).down=false;}).bind(this));
 	for(var i=0;i<3;i++)div.addEventListener("key"+(["down","up","press"])[i],keyhub.dup.bind(keyhub,this,i));}
 	this.KeyHub = function(){this.down = function(){};this.up = function(){};this.pressed = function(){};
-	this.dup = function(k,e,c){(([this.down,this.up,this.pressed])[e])(k.get(c.keyCode,true));}}
+	this.dup = function(k,e,c){(([this.down,this.up,this.pressed])[e])(c/*k.get(c.keyCode,true)*/);}}
 }
 		
 	//this.refresh = function(){this.dup = function(k,e,c){(([this.down,this.up,this.pressed])[e])(k.get(c,true));}}}

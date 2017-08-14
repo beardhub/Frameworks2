@@ -11,15 +11,17 @@ function UtilsFramework(){
 		}
 	}
 	this.KeyListener = function(type, key, oncomp){
+		oncomp = oncomp || function(){};
 		this.init = function(){
 			if (!(type == "down" || type == "up")){
 				this.container.remove(this);
 				return;
 			}
 			this["key"+type] = function(k){
-				if (k.name == key)
+				if (k.key == key){
 					if (oncomp())
 						this.container.remove(this);
+				}
 			}
 		}
 	}
@@ -173,6 +175,19 @@ function UtilsFramework(){
 				return true;
 			}
 			return false;
+		}
+		this.renderp = function(g){
+			if (this.progress()>=1||this.progress()<0)
+				return; else{
+				g.save();
+				g.globalAlpha = .35;
+				g.fillStyle = "white";
+				g.beginPath();
+				g.lineTo(16,16);
+				g.arc(16,16,8,-Math.PI/2,2*Math.PI*(-.25+this.progress()));
+				g.fill();
+				g.restore();
+			}
 		}
 		this.update = function(delta){
 			//console.log(this.count);

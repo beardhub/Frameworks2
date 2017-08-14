@@ -17,7 +17,7 @@ function MouseFramework(){
 	this.x = function(){	return mouse.x;	}
 	this.y = function(){	return mouse.y;	}
 	this.isdown = function(){	return mouse.down;	}
-	this.relx = function(t){if (!exists(t.container)) return this.x()-t.x;return (this.x() - (t.container.screenx(t.x)))}//t.container.cumZoom();}// + t.x)/t.container.camera.getzoom();}
+	this.relx = function(t){if (!exists(t.container)) return this.x()-t.x;return this.x() - (t.container.screenx(t.x));}//t.container.cumZoom();}// + t.x)/t.container.camera.getzoom();}
 	this.rely = function(t){if (!exists(t.container)) return this.y()-t.y;return this.y() - (t.container.screeny(t.y));}// + t.y)/t.container.camera.getzoom();}
 	this.reld = function(t){return Math.sqrt(this.relx(t)*this.relx(t)+this.rely(t)*this.rely(t));}
 	this.rela = function(t){return Math.atan2(this.rely(t),this.relx(t))}
